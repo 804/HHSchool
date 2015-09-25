@@ -11,7 +11,7 @@ Script for submitting expressions containing brackets, one variable, the operati
 24x^9003 - 4x^9002 - 36x^5 - 120x^4 - 33x^3 + 27x^2 - 3x
 
 ```cmd
-D:\Data\Python\HHTest2015>python polynom.py
+D:\Data\Python\HHTest2015>python Polynom.py
 
 Input expression:
 (x - 6x^2)(((3 + 6x)(x + 3) - 4x^9000)x - 3)
@@ -35,7 +35,7 @@ Result:
 24x^9003 - 4x^9002 - 36x^5 - 120x^4 - 33x^3 + 27x^2 - 3x
 
 ```cmd
-D:\Data\Python\HHTest2015>python polynom.py
+D:\Data\Python\HHTest2015>python Polynom.py
 
 Input expression:
 (x - 6x^2)(((3 + 6x)(x + 3) - 4x^9000)x - 3)
