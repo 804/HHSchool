@@ -170,7 +170,7 @@ def multiple_polinomials(first, second):
 
 
 def main():
-    expression = raw_input("Input expression:\n").replace(' ', '').lower()
+    expression = raw_input("\nInput expression:\n").replace(' ', '').lower()
     position = 0
     numbers = [chr(item) for item in xrange(48, 58)]
     reverse_polish = []
@@ -191,11 +191,11 @@ def main():
                 reverse_polish.append(operand_stack.pop())
             operand_stack.pop()
             position += 1
-        elif expression[position] in ('+', '-'):
+        elif expression[position] in ('+', '-', '*'):
             add_operand_in_stack(expression[position], reverse_polish, operand_stack)
             position += 1
         else:
-            limits = [expression[position:].index(char) for char in ('+', '-', ')', '(') if
+            limits = [expression[position:].index(char) for char in ('+', '-', ')', '(', '*') if
                       char in expression[position:]]
             if limits:
                 reverse_polish.append(expression[position:position + min(limits)])
@@ -228,7 +228,7 @@ def main():
             continue
         position += 1
 
-    print dictionary_polinomial_to_string(reverse_polish[0])
+    print '\nResult: \n %s' % dictionary_polinomial_to_string(reverse_polish[0])
 
 
 if __name__ == '__main__':
