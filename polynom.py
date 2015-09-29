@@ -16,6 +16,7 @@ Output:
 24x^9003 - 4x^9002 - 36x^5 - 120x^4 - 33x^3 + 27x^2 - 3x
 """
 import math
+import sys
 
 
 def add_operand_in_stack(operand, reverse_polish_notation, operand_stack):
@@ -31,15 +32,15 @@ def add_operand_in_stack(operand, reverse_polish_notation, operand_stack):
     :param operand_stack: stack's current statement
     :type operand_stack: <type 'list'>
     """
-    priority = ('+', '-', '*')
+    priority = ('+', '-', '*', '^')
     while operand_stack and (operand_stack[len(operand_stack) - 1] != '(') and (
                 priority.index(operand_stack[len(operand_stack) - 1]) > priority.index(operand)):
         reverse_polish_notation.append(operand_stack.pop())
     operand_stack.append(operand)
 
 
-def string_monomial_to_dictionary(monomial):
-    """ The function to convert the monomial's string
+def string_simple_monomial_to_dictionary(monomial):
+    """ The function to convert the simple monomial's string
     record in a convenient for computing dictionary-form
 
     :param monomial: converted monomial
@@ -47,18 +48,10 @@ def string_monomial_to_dictionary(monomial):
     :return: monomial in dictionary-form
     :rtype: <type 'dict'>
     """
-    if 'x' not in monomial:
-        return {0: int(monomial)}
-    elif '^' not in monomial:
-        if monomial[0] == 'x':
-            return {1: 1}
-        else:
-            return {1: int(monomial[:monomial.index('x')])}
+    if monomial[0] == 'x':
+        return {1: 1}
     else:
-        if monomial[0] == 'x':
-            return {int(monomial[monomial.index('x') + 2:]): 1}
-        else:
-            return {int(monomial[monomial.index('x') + 2:]): int(monomial[:monomial.index('x')])}
+        return {0: int(monomial)}
 
 
 def dictionary_polinomial_to_string(polinomial):
@@ -72,29 +65,21 @@ def dictionary_polinomial_to_string(polinomial):
     """
     result = []
     for key in sorted(polinomial.keys(), reverse=True):
-        if not result:
+        if polinomial[key] > 0:
             if key == 1:
-                result.append(str(polinomial[key]) + 'x')
+                result.append(' + ' + str(polinomial[key]) + 'x')
             elif key == 0:
-                result.append(str(polinomial[key]))
+                result.append(' + ' + str(polinomial[key]))
             else:
-                result.append(str(polinomial[key]) + 'x^' + str(key))
+                result.append(' + ' + str(polinomial[key]) + 'x^' + str(key))
         else:
-            if polinomial[key] > 0:
-                if key == 1:
-                    result.append(' + ' + str(polinomial[key]) + 'x')
-                elif key == 0:
-                    result.append(' + ' + str(polinomial[key]))
-                else:
-                    result.append(' + ' + str(polinomial[key]) + 'x^' + str(key))
+            if key == 1:
+                result.append(' - ' + str(int(math.fabs(polinomial[key]))) + 'x')
+            elif key == 0:
+                result.append(' - ' + str(int(math.fabs(polinomial[key]))))
             else:
-                if key == 1:
-                    result.append(' - ' + str(int(math.fabs(polinomial[key]))) + 'x')
-                elif key == 0:
-                    result.append(' - ' + str(int(math.fabs(polinomial[key]))))
-                else:
-                    result.append(' - ' + str(int(math.fabs(polinomial[key]))) + 'x^' + str(key))
-    return ''.join(result)
+                result.append(' - ' + str(int(math.fabs(polinomial[key]))) + 'x^' + str(key))
+    return ''.join(result)[3:]
 
 
 def addition_polinomials(first, second):
@@ -169,6 +154,43 @@ def multiple_polinomials(first, second):
     return result
 
 
+def constant_degree(polinomial, degree):
+    """ The function for involution of polinomial in constant degree
+
+    :param polinomial: multiplied polinomial
+    :type polinomial: <type 'dict'>
+    :param degree: constant degree
+    :return: result of multiple
+    :rtype: <type 'dict'>
+    """
+    result = {0: 1}
+    for i in xrange(degree):
+        result = multiple_polinomials(result, polinomial)
+    return result
+
+
+def expression_is_correct(expression):
+    """ The function checks the validity of the input expression
+
+    :param expression: multiplied polinomial
+    :type expression: <type 'str'>
+    :return: expression is correct or not
+    :rtype: <type 'bool'>
+    """
+    brackets = 0
+    for char_index in xrange(len(expression)):
+        if (expression[char_index] in ('+', '-', '*', '^', '(')) and (
+                    (char_index + 1 == len(expression)) or (
+                            expression[char_index + 1] in ('+', '-', '*', '^', ')'))):
+            return False
+        if (expression[char_index] == '^') and (expression[char_index + 1] == 'x'):
+            return False
+        brackets += 1 if expression[char_index] == '(' else -1 if expression[char_index] == ')' else 0
+        if brackets < 0:
+            return False
+    return True
+
+
 def make_reverse_polish_notation(expression):
     """ The function to make reverse polish notation
     form from input expression
@@ -186,7 +208,7 @@ def make_reverse_polish_notation(expression):
         if (position != 0) and (expression[position - 1] == ')'):
             if expression[position] in (numbers + ['x', '(']):
                 add_operand_in_stack('*', reverse_polish_notation, operand_stack)
-        if (position != 0) and (expression[position] == '('):
+        if (position != 0) and (expression[position] in ('x', '(')):
             if expression[position - 1] in (numbers + ['x']):
                 add_operand_in_stack('*', reverse_polish_notation, operand_stack)
 
@@ -198,15 +220,15 @@ def make_reverse_polish_notation(expression):
                 reverse_polish_notation.append(operand_stack.pop())
             operand_stack.pop()
             position += 1
-        elif expression[position] in ('+', '-', '*'):
+        elif expression[position] in ('+', '-', '*', '^'):
             add_operand_in_stack(expression[position], reverse_polish_notation, operand_stack)
             position += 1
         else:
-            limits = [expression[position:].index(char) for char in ('+', '-', ')', '(', '*') if
-                      char in expression[position:]]
+            limits = [expression[position + 1:].index(char) for char in ('+', '-', ')', '(', '*', '^', 'x') if
+                      char in expression[position + 1:]]
             if limits:
-                reverse_polish_notation.append(expression[position:position + min(limits)])
-                position += min(limits)
+                reverse_polish_notation.append(expression[position:position + min(limits) + 1])
+                position += min(limits) + 1
             else:
                 reverse_polish_notation.append(expression[position:])
                 position = len(expression)
@@ -238,17 +260,35 @@ def calculate(reverse_polish_notation):
                 multiple_polinomials(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1])]
             position -= 1
             continue
+        elif reverse_polish_notation[position] == '^':
+            try:
+                if reverse_polish_notation[position - 1].keys() != [0]:
+                    raise Exception('Input error', 'Incorrect degree for involution')
+            except Exception as exception:
+                print "%s: %s" % (exception[0], exception[1])
+                sys.exit(0)
+            reverse_polish_notation[position - 2:position + 1] = [
+                constant_degree(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1][0])]
+            position -= 1
+            continue
         position += 1
 
 
 def main():
     expression = raw_input("\nInput expression:\n").replace(' ', '').lower()
+    try:
+        if not expression_is_correct(expression):
+            raise Exception('Input error', 'Input expression is not correct')
+    except Exception as exception:
+        print '%s: %s' % (exception[0], exception[1])
+        sys.exit(0)
     reverse_polish_notation = make_reverse_polish_notation(expression)
-    reverse_polish_notation = [string_monomial_to_dictionary(string) if string not in ('+', '-', '*') else string for
+    reverse_polish_notation = [string_simple_monomial_to_dictionary(string) if string not in ('+', '-', '*', '^') else string for
                                string in reverse_polish_notation]
     calculate(reverse_polish_notation)
-    print '\nResult: \n %s' % dictionary_polinomial_to_string(reverse_polish_notation[0])
+    print '\nResult:\n%s' % dictionary_polinomial_to_string(reverse_polish_notation[0])
 
 
 if __name__ == '__main__':
     main()
+    
