@@ -54,40 +54,40 @@ def string_simple_monomial_to_dictionary(monomial):
         return {0: int(monomial)}
 
 
-def dictionary_polinomial_to_string(polinomial):
-    """ The function to convert the polinomial's dictionary-form
+def dictionary_polynomial_to_string(polynomial):
+    """ The function to convert the polynomial's dictionary-form
     in a string record
 
-    :param polinomial: converted polinomial
-    :type polinomial: <type 'dict'>
-    :return: polinomial in string record
+    :param polynomial: converted polynomial
+    :type polynomial: <type 'dict'>
+    :return: polynomial in string record
     :rtype: <type 'str'>
     """
     result = []
-    for key in sorted(polinomial.keys(), reverse=True):
-        if polinomial[key] > 0:
+    for key in sorted(polynomial.keys(), reverse=True):
+        if polynomial[key] > 0:
             if key == 1:
-                result.append(' + ' + str(polinomial[key]) + 'x')
+                result.append(' + ' + str(polynomial[key]) + 'x')
             elif key == 0:
-                result.append(' + ' + str(polinomial[key]))
+                result.append(' + ' + str(polynomial[key]))
             else:
-                result.append(' + ' + str(polinomial[key]) + 'x^' + str(key))
+                result.append(' + ' + str(polynomial[key]) + 'x^' + str(key))
         else:
             if key == 1:
-                result.append(' - ' + str(int(math.fabs(polinomial[key]))) + 'x')
+                result.append(' - ' + str(int(math.fabs(polynomial[key]))) + 'x')
             elif key == 0:
-                result.append(' - ' + str(int(math.fabs(polinomial[key]))))
+                result.append(' - ' + str(int(math.fabs(polynomial[key]))))
             else:
-                result.append(' - ' + str(int(math.fabs(polinomial[key]))) + 'x^' + str(key))
+                result.append(' - ' + str(int(math.fabs(polynomial[key]))) + 'x^' + str(key))
     return ''.join(result)[3:]
 
 
-def addition_polinomials(first, second):
-    """ The function to addition of polinomials in dictionary-form
+def addition_polynomials(first, second):
+    """ The function to addition of polynomials in dictionary-form
 
-    :param first: added polinomial
+    :param first: added polynomial
     :type first: <type 'dict'>
-    :param second: added polinomial
+    :param second: added polynomial
     :type second: <type 'dict'>
     :return: result of addition
     :rtype: <type 'dict'>
@@ -101,12 +101,12 @@ def addition_polinomials(first, second):
     return first
 
 
-def subtraction_polinomials(first, second):
-    """ The function to subtraction of polinomials in dictionary-form
+def subtraction_polynomials(first, second):
+    """ The function to subtraction of polynomials in dictionary-form
 
-    :param first: shrinkable polinomial
+    :param first: shrinkable polynomial
     :type first: <type 'dict'>
-    :param second: deducted polinomial
+    :param second: deducted polynomial
     :type second: <type 'dict'>
     :return: result of subtraction
     :rtype: <type 'dict'>
@@ -120,11 +120,11 @@ def subtraction_polinomials(first, second):
     return first
 
 
-def multiple_on_monomial(polinomial, coefficient, degree):
-    """ The function to multiple polinomial on monomial in dictionary-form
+def multiple_on_monomial(polynomial, coefficient, degree):
+    """ The function to multiple polynomial on monomial in dictionary-form
 
-    :param polinomial: multiplied polinomial
-    :type polinomial: <type 'dict'>
+    :param polynomial: multiplied polynomial
+    :type polynomial: <type 'dict'>
     :param coefficient: multiplied monomial's coefficient
     :type coefficient: <type 'int'>
     :param degree: multiplied monomial's degree
@@ -133,46 +133,46 @@ def multiple_on_monomial(polinomial, coefficient, degree):
     :rtype: <type 'dict'>
     """
     result = {}
-    for key in polinomial.keys():
-        result[key + degree] = coefficient * polinomial[key]
+    for key in polynomial.keys():
+        result[key + degree] = coefficient * polynomial[key]
     return result
 
 
-def multiple_polinomials(first, second):
-    """ The function to multiple of polinomials in dictionary-form
+def multiple_polynomials(first, second):
+    """ The function to multiple of polynomials in dictionary-form
 
-    :param first: multiplied polinomial
+    :param first: multiplied polynomial
     :type first: <type 'dict'>
-    :param second: multiplied polinomial
+    :param second: multiplied polynomial
     :type second: <type 'dict'>
     :return: result of multiple
     :rtype: <type 'dict'>
     """
     result = {}
     for key in second.keys():
-        result = addition_polinomials(multiple_on_monomial(first, second[key], key), result)
+        result = addition_polynomials(multiple_on_monomial(first, second[key], key), result)
     return result
 
 
-def constant_degree(polinomial, degree):
-    """ The function for involution of polinomial in constant degree
+def constant_degree(polynomial, degree):
+    """ The function for involution of polynomial in constant degree
 
-    :param polinomial: multiplied polinomial
-    :type polinomial: <type 'dict'>
+    :param polynomial: multiplied polynomial
+    :type polynomial: <type 'dict'>
     :param degree: constant degree
     :return: result of multiple
     :rtype: <type 'dict'>
     """
     result = {0: 1}
     for i in xrange(degree):
-        result = multiple_polinomials(result, polinomial)
+        result = multiple_polynomials(result, polynomial)
     return result
 
 
 def expression_is_correct(expression):
     """ The function checks the validity of the input expression
 
-    :param expression: multiplied polinomial
+    :param expression: multiplied polynomial
     :type expression: <type 'str'>
     :return: expression is correct or not
     :rtype: <type 'bool'>
@@ -242,24 +242,22 @@ def calculate(reverse_polish_notation):
 
     :param reverse_polish_notation: reverse polish notation form of expression
     :type reverse_polish_notation: <type 'list'>
-
-    :raise: Exception
     """
     position = 0
     while position < len(reverse_polish_notation):
         if reverse_polish_notation[position] == '+':
             reverse_polish_notation[position - 2:position + 1] = [
-                addition_polinomials(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1])]
+                addition_polynomials(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1])]
             position -= 1
             continue
         elif reverse_polish_notation[position] == '-':
             reverse_polish_notation[position - 2:position + 1] = [
-                subtraction_polinomials(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1])]
+                subtraction_polynomials(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1])]
             position -= 1
             continue
         elif reverse_polish_notation[position] == '*':
             reverse_polish_notation[position - 2:position + 1] = [
-                multiple_polinomials(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1])]
+                multiple_polynomials(reverse_polish_notation[position - 2], reverse_polish_notation[position - 1])]
             position -= 1
             continue
         elif reverse_polish_notation[position] == '^':
@@ -285,12 +283,12 @@ def main():
         print '%s: %s' % (exception[0], exception[1])
         sys.exit(0)
     reverse_polish_notation = make_reverse_polish_notation(expression)
-    reverse_polish_notation = [string_simple_monomial_to_dictionary(string) if string not in ('+', '-', '*', '^') else string for
-                               string in reverse_polish_notation]
+    reverse_polish_notation = [
+        string_simple_monomial_to_dictionary(string) if string not in ('+', '-', '*', '^') else string for
+        string in reverse_polish_notation]
     calculate(reverse_polish_notation)
-    print '\nResult:\n%s' % dictionary_polinomial_to_string(reverse_polish_notation[0])
+    print '\nResult:\n%s' % dictionary_polynomial_to_string(reverse_polish_notation[0])
 
 
 if __name__ == '__main__':
     main()
-    
