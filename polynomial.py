@@ -32,9 +32,9 @@ def add_operand_in_stack(operand, reverse_polish_notation, operand_stack):
     :param operand_stack: stack's current statement
     :type operand_stack: <type 'list'>
     """
-    priority = ('+', '-', '*', '^')
+    priority = {'+': 0, '-': 0, '*': 1, '^': 2}
     while operand_stack and (operand_stack[len(operand_stack) - 1] != '(') and (
-                priority.index(operand_stack[len(operand_stack) - 1]) > priority.index(operand)):
+                priority[operand_stack[len(operand_stack) - 1]] >= priority[operand]):
         reverse_polish_notation.append(operand_stack.pop())
     operand_stack.append(operand)
 
@@ -65,7 +65,21 @@ def dictionary_polynomial_to_string(polynomial):
     """
     result = []
     for key in sorted(polynomial.keys(), reverse=True):
-        if polynomial[key] > 0:
+        if polynomial[key] == 1:
+            if key == 1:
+                result.append(' + x')
+            elif key == 0:
+                result.append(' + ' + str(polynomial[key]))
+            else:
+                result.append(' + x^' + str(key))
+        elif polynomial[key] == -1:
+            if key == 1:
+                result.append(' - x')
+            elif key == 0:
+                result.append(' - ' + str(polynomial[key]))
+            else:
+                result.append(' - x^' + str(key))
+        elif polynomial[key] > 0:
             if key == 1:
                 result.append(' + ' + str(polynomial[key]) + 'x')
             elif key == 0:
@@ -79,7 +93,10 @@ def dictionary_polynomial_to_string(polynomial):
                 result.append(' - ' + str(int(math.fabs(polynomial[key]))))
             else:
                 result.append(' - ' + str(int(math.fabs(polynomial[key]))) + 'x^' + str(key))
-    return ''.join(result)[3:]
+    if result[0][1] == '-':
+        return ''.join(result)[1:]
+    else:
+        return ''.join(result)[3:]
 
 
 def addition_polynomials(first, second):
@@ -179,9 +196,15 @@ def expression_is_correct(expression):
     """
     brackets = 0
     for char_index in xrange(len(expression)):
-        if (expression[char_index] in ('+', '-', '*', '^', '(')) and (
+        if (expression[char_index] in ('+', '-', '*', '^')) and (
                     (char_index + 1 == len(expression)) or (
                             expression[char_index + 1] in ('+', '-', '*', '^', ')'))):
+            return False
+        if (expression[char_index] == '(') and (
+                    (char_index + 1 == len(expression)) or (
+                            expression[char_index + 1] in ('*', '^', ')'))):
+            return False
+        if (char_index == 0) and ((char_index + 1 == len(expression)) or (expression[char_index] in ('*', '^', ')'))):
             return False
         if (expression[char_index] == '^') and (expression[char_index + 1] == 'x'):
             return False
@@ -221,8 +244,13 @@ def make_reverse_polish_notation(expression):
             operand_stack.pop()
             position += 1
         elif expression[position] in ('+', '-', '*', '^'):
-            add_operand_in_stack(expression[position], reverse_polish_notation, operand_stack)
-            position += 1
+            if (expression[position] in ('+', '-')) and ((position == 0) or (expression[position - 1] == '(')):
+                reverse_polish_notation.append(expression[position] + '1')
+                add_operand_in_stack('*', reverse_polish_notation, operand_stack)
+                position += 1
+            else:
+                add_operand_in_stack(expression[position], reverse_polish_notation, operand_stack)
+                position += 1
         else:
             limits = [expression[position + 1:].index(char) for char in ('+', '-', ')', '(', '*', '^', 'x') if
                       char in expression[position + 1:]]
