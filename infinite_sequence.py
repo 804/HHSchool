@@ -113,6 +113,8 @@ def get_min_position(subsequence):
                 if (min_position == -1) or (
                                 sequence_position(element) + offset < min_position):
                     min_position = sequence_position(element) - offset
+        if min_position != -1:
+            break
     return min_position
 
 
