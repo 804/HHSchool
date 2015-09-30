@@ -196,6 +196,8 @@ def expression_is_correct(expression):
     """
     brackets = 0
     for char_index in xrange(len(expression)):
+        if expression[char_index] not in ([chr(item) for item in xrange(48, 58)] + ['+', '-', '*', '^', 'x', '(', ')']):
+            return False
         if (expression[char_index] in ('+', '-', '*', '^')) and (
                     (char_index + 1 == len(expression)) or (
                             expression[char_index + 1] in ('+', '-', '*', '^', ')'))):
