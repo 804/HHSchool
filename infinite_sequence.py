@@ -120,7 +120,7 @@ def get_min_position(subsequence):
 
 def main():
     subsequence = raw_input('\nInput sequence:\n')
-    print '\nResult:\n%s' % get_min_position(subsequence)
+    print '\nResult:\n%d' % get_min_position(subsequence)
 
 
 if __name__ == '__main__':
